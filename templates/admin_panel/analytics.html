@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}System Analytics - SMS{% endblock %}
+{% block body %}
+<div class="layout">
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">S</div>
+            <span>SMS</span>
+        </div>
+        <div class="sidebar-profile">
+            <div class="avatar">{{ user.username.0|upper }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="role-badge">Administrator</div>
+            </div>
+        </div>
+        <div class="sidebar-nav">
+            <a href="{% url 'core:admin_dashboard' %}"><span class="icon">&#128202;</span> Dashboard</a>
+            <a href="{% url 'core:admin_students' %}"><span class="icon">&#127891;</span> Manage Students</a>
+            <a href="{% url 'core:admin_add_student' %}"><span class="icon">&#10133;</span> Add Student</a>
+            <a href="{% url 'core:admin_faculty' %}"><span class="icon">&#128105;&#8205;&#127979;</span> Manage Faculty</a>
+            <a href="{% url 'core:admin_add_faculty' %}"><span class="icon">&#10133;</span> Add Faculty</a>
+            <a href="{% url 'core:admin_subjects' %}"><span class="icon">&#128218;</span> Manage Subjects</a>
+            <a href="{% url 'core:admin_reports' %}"><span class="icon">&#128203;</span> Reports</a>
+            <a href="{% url 'core:admin_fees' %}"><span class="icon">&#128176;</span> Fees Management</a>
+            <a href="{% url 'core:admin_analytics' %}" class="active"><span class="icon">&#128200;</span> System Analytics</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="btn btn-danger btn-block btn-sm">&#128682; Logout</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div class="header-avatar">{{ user.username.0|upper }}</div>
+            <div>
+                <h1>System Analytics</h1>
+                <div class="subtitle">Institution-wide statistics and insights</div>
+            </div>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(139,92,246,0.1);color:#a78bfa;">&#127891;</div>
+                <div>
+                    <div class="stat-value">{{ student_count }}</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(16,185,129,0.1);color:#34d399;">&#128105;&#8205;&#127979;</div>
+                <div>
+                    <div class="stat-value">{{ faculty_count }}</div>
+                    <div class="stat-label">Total Faculty</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(14,165,233,0.1);color:#38bdf8;">&#128218;</div>
+                <div>
+                    <div class="stat-value">{{ course_count }}</div>
+                    <div class="stat-label">Total Courses</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:rgba(245,158,11,0.1);color:#fbbf24;">&#128200;</div>
+                <div>
+                    <div class="stat-value">{{ attendance_rate }}%</div>
+                    <div class="stat-label">Attendance Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2 mb-28">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span class="dot" style="background:#a78bfa;"></span> Student to Faculty Ratio</div>
+                </div>
+                <div style="text-align:center;padding:24px 0;">
+                    {% if faculty_count %}
+                    <div style="font-size:48px;font-weight:800;color:#f1f5f9;">{{ student_count }}:{{ faculty_count }}</div>
+                    <div style="font-size:13px;color:#64748b;margin-top:8px;">Students : Faculty</div>
+                    {% else %}
+                    <div class="empty-state"><div class="icon">&#128105;&#8205;&#127979;</div><h3>No faculty data</h3></div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><span class="dot" style="background:#34d399;"></span> Attendance Performance</div>
+                </div>
+                <div style="text-align:center;padding:24px 0;">
+                    <div style="font-size:48px;font-weight:800;color:#f1f5f9;">{{ attendance_rate }}%</div>
+                    <div style="font-size:13px;color:#64748b;margin-top:8px;">Overall Present Rate</div>
+                    <div style="margin-top:16px;">
+                        {% if attendance_rate >= 75 %}
+                        <span class="badge badge-green">Good Standing</span>
+                        {% elif attendance_rate >= 50 %}
+                        <span class="badge badge-yellow">Needs Improvement</span>
+                        {% else %}
+                        <span class="badge badge-red">Critical</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><span class="dot" style="background:#60a5fa;"></span> Summary</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:8px 0;">
+                <div style="text-align:center;">
+                    <div style="font-size:24px;font-weight:800;color:#a78bfa;">{{ student_count }}</div>
+                    <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;">Students</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:24px;font-weight:800;color:#34d399;">{{ faculty_count }}</div>
+                    <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;">Faculty</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:24px;font-weight:800;color:#60a5fa;">{{ course_count }}</div>
+                    <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;">Courses</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:24px;font-weight:800;color:#fbbf24;">{{ attendance_rate }}%</div>
+                    <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;">Attendance</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

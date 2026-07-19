@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Register - SMS{% endblock %}
+{% block body %}
+<div class="auth-page">
+    <div class="auth-card" style="max-width:520px;">
+        <div class="logo-wrap">
+            <div style="width:48px;height:48px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:14px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:18px;box-shadow:0 4px 20px rgba(99,102,241,0.35);">S</div>
+        </div>
+        <h1>Register Institution</h1>
+        <p class="subtitle">Set up your institution and create an admin account</p>
+        <form method="post">
+            {% csrf_token %}
+            <div style="font-size:11px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:1.5px;margin:16px 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(99,102,241,0.1);">Institution Details</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Institution Name</label>
+                    <input type="text" name="inst_name" placeholder="e.g. Delhi Public School" required>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select name="inst_type">
+                        <option>School</option><option selected>College</option><option>University</option><option>Coaching</option><option>Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" name="inst_phone" placeholder="+91 98765 43210" required>
+                </div>
+                <div class="form-group">
+                    <label>Email (optional)</label>
+                    <input type="email" name="inst_email" placeholder="info@school.edu">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <input type="text" name="inst_address" placeholder="City, State, Country">
+            </div>
+            <div style="font-size:11px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:1.5px;margin:20px 0 10px;padding-bottom:8px;border-bottom:1px solid rgba(99,102,241,0.1);">Admin Account</div>
+            <div class="form-group">
+                <label>Your Full Name</label>
+                <input type="text" name="admin_name" placeholder="e.g. Rajesh Kumar" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="admin_username" placeholder="Choose a username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="admin_password" placeholder="Min 6 characters" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" name="admin_confirm" placeholder="Re-enter password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top:8px;">Create Institution &amp; Account</button>
+        </form>
+        <div style="text-align:center;margin-top:20px;font-size:13px;color:#475569;">
+            Already have an account? <a href="{% url 'accounts:login' %}">Sign In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

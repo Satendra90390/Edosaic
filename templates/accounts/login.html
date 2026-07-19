@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Login - SMS{% endblock %}
+{% block body %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="logo-wrap">
+            <div style="width:48px;height:48px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:14px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:18px;box-shadow:0 4px 20px rgba(99,102,241,0.35);">S</div>
+        </div>
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Sign in to your Student Management System</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter your username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top:8px;">Sign In</button>
+        </form>
+        <div style="text-align:center;margin-top:20px;font-size:13px;color:#475569;">
+            Don't have an account? <a href="{% url 'accounts:register' %}">Register Institution</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Reports - SMS{% endblock %}
+{% block body %}
+<div class="layout">
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">S</div>
+            <span>SMS</span>
+        </div>
+        <div class="sidebar-profile">
+            <div class="avatar">{{ user.username.0|upper }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="role-badge">Administrator</div>
+            </div>
+        </div>
+        <div class="sidebar-nav">
+            <a href="{% url 'core:admin_dashboard' %}"><span class="icon">&#128202;</span> Dashboard</a>
+            <a href="{% url 'core:admin_students' %}"><span class="icon">&#127891;</span> Manage Students</a>
+            <a href="{% url 'core:admin_add_student' %}"><span class="icon">&#10133;</span> Add Student</a>
+            <a href="{% url 'core:admin_faculty' %}"><span class="icon">&#128105;&#8205;&#127979;</span> Manage Faculty</a>
+            <a href="{% url 'core:admin_add_faculty' %}"><span class="icon">&#10133;</span> Add Faculty</a>
+            <a href="{% url 'core:admin_subjects' %}"><span class="icon">&#128218;</span> Manage Subjects</a>
+            <a href="{% url 'core:admin_reports' %}" class="active"><span class="icon">&#128203;</span> Reports</a>
+            <a href="{% url 'core:admin_fees' %}"><span class="icon">&#128176;</span> Fees Management</a>
+            <a href="{% url 'core:admin_analytics' %}"><span class="icon">&#128200;</span> System Analytics</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="btn btn-danger btn-block btn-sm">&#128682; Logout</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div class="header-avatar">{{ user.username.0|upper }}</div>
+            <div>
+                <h1>Student Reports</h1>
+                <div class="subtitle">View academic results and performance reports</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><span class="dot" style="background:#fbbf24;"></span> Results Overview</div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Course</th>
+                            <th>Faculty</th>
+                            <th>Marks</th>
+                            <th>Grade</th>
+                            <th>Semester</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in results %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td style="font-weight:600;color:#e2e8f0;">{{ r.student.name }}</td>
+                            <td><span class="badge badge-purple">{{ r.course.name }}</span></td>
+                            <td>{{ r.faculty.name }}</td>
+                            <td style="font-weight:700;color:#f1f5f9;">{{ r.marks }}</td>
+                            <td>
+                                {% if r.grade %}
+                                <span class="badge {% if r.grade == 'A' or r.grade == 'A+' %}badge-green{% elif r.grade == 'B' or r.grade == 'B+' %}badge-blue{% elif r.grade == 'C' %}badge-yellow{% else %}badge-red{% endif %}">{{ r.grade }}</span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <td>{{ r.semester|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state"><div class="icon">&#128203;</div><h3>No results available yet</h3></div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

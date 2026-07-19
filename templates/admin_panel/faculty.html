@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Manage Faculty - SMS{% endblock %}
+{% block body %}
+<div class="layout">
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">S</div>
+            <span>SMS</span>
+        </div>
+        <div class="sidebar-profile">
+            <div class="avatar">{{ user.username.0|upper }}</div>
+            <div class="user-info">
+                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="role-badge">Administrator</div>
+            </div>
+        </div>
+        <div class="sidebar-nav">
+            <a href="{% url 'core:admin_dashboard' %}"><span class="icon">&#128202;</span> Dashboard</a>
+            <a href="{% url 'core:admin_students' %}"><span class="icon">&#127891;</span> Manage Students</a>
+            <a href="{% url 'core:admin_add_student' %}"><span class="icon">&#10133;</span> Add Student</a>
+            <a href="{% url 'core:admin_faculty' %}" class="active"><span class="icon">&#128105;&#8205;&#127979;</span> Manage Faculty</a>
+            <a href="{% url 'core:admin_add_faculty' %}"><span class="icon">&#10133;</span> Add Faculty</a>
+            <a href="{% url 'core:admin_subjects' %}"><span class="icon">&#128218;</span> Manage Subjects</a>
+            <a href="{% url 'core:admin_reports' %}"><span class="icon">&#128203;</span> Reports</a>
+            <a href="{% url 'core:admin_fees' %}"><span class="icon">&#128176;</span> Fees Management</a>
+            <a href="{% url 'core:admin_analytics' %}"><span class="icon">&#128200;</span> System Analytics</a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="btn btn-danger btn-block btn-sm">&#128682; Logout</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div class="header-avatar">{{ user.username.0|upper }}</div>
+            <div>
+                <h1>Manage Faculty</h1>
+                <div class="subtitle">View and manage all faculty members</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title"><span class="dot" style="background:#34d399;"></span> All Faculty</div>
+                <a href="{% url 'core:admin_add_faculty' %}" class="btn btn-primary btn-sm">&#10133; Add Faculty</a>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Qualification</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in faculty_list %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td style="font-weight:600;color:#e2e8f0;">{{ f.name }}</td>
+                            <td><span class="badge badge-blue">{{ f.department|default:"-" }}</span></td>
+                            <td>{{ f.qualification|default:"-" }}</td>
+                            <td>{{ f.phone }}</td>
+                            <td>{{ f.email|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state"><div class="icon">&#128105;&#8205;&#127979;</div><h3>No faculty members found</h3></div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
