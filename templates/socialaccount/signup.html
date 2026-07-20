@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sign Up — SMS Pro{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}">{% endblock %}
+{% block body %}
+<nav class="auth-nav">
+    <a href="/" class="auth-nav-brand">
+        <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="12" fill="url(#an5)"/><defs><linearGradient id="an5" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs><path d="M10 28 C10 28, 14 14, 20 12 C26 14, 30 28, 30 28" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.9"/><circle cx="20" cy="19" r="2" fill="white" opacity="0.95"/></svg>
+        <span>SMS Pro</span>
+    </a>
+    <div class="auth-nav-links"><a href="/">Home</a><a href="{% url 'accounts:login' %}" class="auth-nav-btn">Sign In</a></div>
+</nav>
+
+<div class="auth-page">
+    <div class="auth-form-panel" style="width:100%;max-width:480px;margin:0 auto;">
+        <div class="auth-card" style="padding:48px 40px;">
+            <h1 style="margin-bottom:8px;">Create Your Account</h1>
+            <p style="color:var(--text-secondary);margin-bottom:24px;">Complete your profile to finish signing up with Google.</p>
+
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="auth-submit">Complete Sign Up &#8594;</button>
+            </form>
+            <a href="{% url 'accounts:login' %}" style="display:inline-block;margin-top:20px;font-size:13px;color:var(--text-secondary);text-decoration:none;">&#8592; Back to Sign In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

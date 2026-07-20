@@ -6,6 +6,12 @@ from .models import User
 from core.models import Institution, Student, Faculty
 
 
+def landing_page(request):
+    if request.user.is_authenticated:
+        return redirect('core:dashboard')
+    return render(request, 'accounts/landing.html')
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('core:dashboard')
