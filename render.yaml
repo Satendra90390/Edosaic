@@ -4,7 +4,7 @@ services:
     runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn sms_django.wsgi:application
-    preDeployCommand: python manage.py migrate --noinput
+    preDeployCommand: python manage.py auto_setup
     envVars:
       - key: DEBUG
         value: "False"
