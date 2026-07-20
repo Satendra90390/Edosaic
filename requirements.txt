@@ -7,3 +7,4 @@ whitenoise==6.9.0
 requests==2.34.2
 PyJWT==2.13.0
 cryptography==49.0.0
+dj-database-url==2.3.0

@@ -1,6 +1,7 @@
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import dj_database_url
 
 load_dotenv()
 
@@ -13,7 +14,7 @@ RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-PRODUCTION = not DEBUG
+PRODUCTION = not DEBUG or RENDER_EXTERNAL_HOSTNAME is not None
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -74,16 +75,7 @@ DATABASES = {
 
 DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': DATABASE_URL.split('/')[-1].split('?')[0],
-            'USER': DATABASE_URL.split('://')[1].split(':')[0] if '://' in DATABASE_URL else '',
-            'PASSWORD': DATABASE_URL.split(':')[2].split('@')[0] if ':' in DATABASE_URL else '',
-            'HOST': DATABASE_URL.split('@')[1].split(':')[0] if '@' in DATABASE_URL else 'localhost',
-            'PORT': DATABASE_URL.split(':')[-1].split('/')[0] if ':' in DATABASE_URL.split('@')[-1] else '5432',
-        }
-    }
+    DATABASES['default'] = dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 6}},
