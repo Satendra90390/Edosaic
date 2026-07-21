@@ -60,6 +60,13 @@ def register_institution(request):
         admin_password = request.POST.get('admin_password', '')
         admin_confirm = request.POST.get('admin_confirm', '')
 
+        form_data = {
+            'inst_name': inst_name, 'inst_type': inst_type,
+            'inst_phone': inst_phone, 'inst_email': inst_email,
+            'inst_address': inst_address, 'admin_name': admin_name,
+            'admin_username': admin_username,
+        }
+
         errors = []
         if not inst_name:
             errors.append('Institution name is required.')
@@ -73,13 +80,14 @@ def register_institution(request):
             errors.append('Password must be at least 6 characters.')
         if admin_password != admin_confirm:
             errors.append('Passwords do not match.')
-        if User.objects.filter(username=admin_username).exists():
+        if admin_username and User.objects.filter(username=admin_username).exists():
             errors.append('Username already taken.')
 
         if errors:
             for e in errors:
                 messages.error(request, e)
-            return render(request, 'accounts/register.html')
+            form_data['step2'] = True
+            return render(request, 'accounts/register.html', form_data)
 
         slug = inst_name.lower().replace(' ', '-').strip('-')
         import re
@@ -87,7 +95,8 @@ def register_institution(request):
 
         if Institution.objects.filter(slug=slug).exists():
             messages.error(request, 'An institution with this name already exists.')
-            return render(request, 'accounts/register.html')
+            form_data['step2'] = True
+            return render(request, 'accounts/register.html', form_data)
 
         inst = Institution.objects.create(
             name=inst_name, slug=slug, inst_type=inst_type,
