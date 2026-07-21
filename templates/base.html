@@ -22,6 +22,7 @@
     </script>
 </head>
 <body>
+    {% block messages %}
     {% if messages %}
     <div class="toast-container">
         {% for message in messages %}
@@ -29,6 +30,7 @@
         {% endfor %}
     </div>
     {% endif %}
+    {% endblock %}
     {% block body %}{% endblock %}
 
     <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">

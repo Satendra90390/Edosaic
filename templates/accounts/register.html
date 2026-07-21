@@ -2,6 +2,7 @@
 {% load static socialaccount %}
 {% block title %}Register Institution — Edosaic{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}?v=3">{% endblock %}
+{% block messages %}{% endblock %}
 {% block body %}
 <!-- Top Nav Bar -->
 <nav class="auth-nav">
@@ -209,6 +210,14 @@
                     </div>
                 </div>
             </form>
+
+            {% if messages %}
+            <div class="auth-messages">
+                {% for message in messages %}
+                <div class="auth-msg auth-msg-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
