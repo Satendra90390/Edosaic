@@ -338,8 +338,7 @@
 .auth-form .input-wrap input,
 .auth-form .input-wrap select {
     width: 100%;
-    padding: 13px 16px;
-    padding-right: 44px;
+    padding: 13px 16px 13px 42px;
     background: var(--input-bg);
     border: 1.5px solid var(--input-border);
     border-radius: var(--r-md);
@@ -391,6 +390,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 2;
+}
+
+.auth-form .input-wrap:has(.password-toggle) input {
+    padding-right: 42px;
 }
 
 .password-toggle:hover { color: var(--brand-text); }
