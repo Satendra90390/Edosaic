@@ -29,7 +29,7 @@ class Command(BaseCommand):
             self.stdout.write('Creating admin user...')
             User.objects.create_superuser(
                 username='admin',
-                email='admin@smspro.com',
+                email='admin@edosaic.com',
                 password='admin123',
             )
             self.stdout.write(self.style.SUCCESS('Admin user created: admin / admin123'))
