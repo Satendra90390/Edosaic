@@ -105,7 +105,7 @@
                     <div class="form-group">
                         <label>Institution Name <span class="required">*</span></label>
                         <div class="input-wrap">
-                            <input type="text" name="inst_name" placeholder="e.g. Delhi Public School" value="{{ inst_name|default:'' }}">
+                            <input type="text" name="inst_name" placeholder="e.g. Delhi Public School, IIT Delhi, Bright Future Academy" value="{{ inst_name|default:'' }}">
                             <span class="input-icon"><i data-lucide="building-2" style="width:18px;height:18px;"></i></span>
                         </div>
                     </div>
@@ -117,7 +117,7 @@
                                 <option value="School" {% if inst_type == 'School' %}selected{% endif %}>School</option>
                                 <option value="College" {% if inst_type != 'School' %}selected{% endif %}>College</option>
                                 <option value="University" {% if inst_type == 'University' %}selected{% endif %}>University</option>
-                                <option value="Coaching" {% if inst_type == 'Coaching' %}selected{% endif %}>Coaching Center</option>
+                                <option value="Coaching" {% if inst_type == 'Coaching' %}selected{% endif %}>Coaching / Tuition Center</option>
                                 <option value="Other" {% if inst_type == 'Other' %}selected{% endif %}>Other</option>
                             </select>
                         </div>
@@ -134,7 +134,7 @@
                     <div class="form-group">
                         <label>Email</label>
                         <div class="input-wrap">
-                            <input type="email" name="inst_email" placeholder="info@school.edu" value="{{ inst_email|default:'' }}">
+                            <input type="email" name="inst_email" placeholder="info@yourschool.edu" value="{{ inst_email|default:'' }}">
                             <span class="input-icon"><i data-lucide="mail" style="width:18px;height:18px;"></i></span>
                         </div>
                     </div>
