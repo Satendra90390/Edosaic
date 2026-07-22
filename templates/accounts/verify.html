@@ -1,64 +1,164 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Verify You're Human — Edosaic{% endblock %}
+{% block title %}Security Verification — Edosaic{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}?v=3">{% endblock %}
 {% block messages %}{% endblock %}
 {% block body %}
-<nav class="auth-nav">
-    <a href="/" class="auth-nav-brand">
-        {% include 'components/logo.html' with size=28 %}
-        <span>Edosaic</span>
-    </a>
-</nav>
+<style>
+.verify-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+    position: relative;
+    overflow: hidden;
+}
+.verify-page::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: -20%;
+    width: 140%;
+    height: 140%;
+    background:
+        radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(99,102,241,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    animation: verifyGlow 15s ease-in-out infinite alternate;
+}
+@keyframes verifyGlow {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-3%, -3%) scale(1.05); }
+}
+.verify-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 48px 40px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.05) inset;
+    text-align: center;
+}
+.verify-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 24px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(99,102,241,0.35);
+    animation: iconPulse 3s ease-in-out infinite;
+}
+@keyframes iconPulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(99,102,241,0.35); }
+    50% { box-shadow: 0 4px 30px rgba(99,102,241,0.5); }
+}
+.verify-icon svg { width: 32px; height: 32px; }
+.verify-card h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+}
+.verify-card .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+.verify-spinner {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--border-default);
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.verify-status {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.verify-footer {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+.verify-footer svg { width: 14px; height: 14px; opacity: 0.5; }
+</style>
 
-<div class="auth-page" style="display:flex;align-items:center;justify-content:center;">
-    <div class="auth-form-panel" style="width:100%;max-width:440px;padding:48px 40px;">
-        <div class="auth-card">
-            <div class="auth-card-header" style="text-align:center;">
-                <div class="mobile-logo">
-                    <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="52" height="52" rx="14" fill="url(#mlv)"/>
-                        <defs><linearGradient id="mlv" x1="0" y1="0" x2="52" y2="52"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
-                        <path d="M13 37 C13 37, 19 18, 26 15 C33 18, 39 37, 39 37" stroke="white" stroke-width="2.8" stroke-linecap="round" fill="none" opacity="0.9"/>
-                        <circle cx="26" cy="23" r="2.5" fill="white" opacity="0.95"/>
-                    </svg>
-                </div>
-                <h1>Verify You're Human</h1>
-                <p class="subtitle">Complete the verification below to access Edosaic</p>
-            </div>
+<div class="verify-page">
+    <div class="verify-card">
+        <div class="verify-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+        </div>
+        <h1>Performing security verification</h1>
+        <p class="subtitle">This website uses a security service to protect against malicious bots. Please wait while we verify you are not a bot.</p>
 
-            {% if messages %}
-            <div class="auth-messages">
-                {% for message in messages %}
-                <div class="auth-msg auth-msg-{{ message.tags }}">{{ message }}</div>
-                {% endfor %}
+        <div class="verify-status" id="verify-status">
+            <div class="verify-spinner"></div>
+            <span>Verifying your browser...</span>
+        </div>
+
+        {% if messages %}
+        <div class="auth-messages">
+            {% for message in messages %}
+            <div class="auth-msg auth-msg-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" id="verify-form">
+            {% csrf_token %}
+            {% if TURNSTILE_SITE_KEY %}
+            <div style="margin-bottom:20px;">
+                <div class="cf-turnstile" data-sitekey="{{ TURNSTILE_SITE_KEY }}" data-theme="auto" data-callback="onVerifySuccess" data-error-callback="onVerifyError"></div>
             </div>
             {% endif %}
+            <button type="submit" class="auth-submit" id="verify-btn" style="display:none;">
+                Continue <i data-lucide="arrow-right" style="width:18px;height:18px;"></i>
+            </button>
+        </form>
 
-            <form method="post" class="auth-form">
-                {% csrf_token %}
-                {% if TURNSTILE_SITE_KEY %}
-                <div class="form-group" style="margin-bottom:20px;">
-                    <div class="cf-turnstile" data-sitekey="{{ TURNSTILE_SITE_KEY }}" data-theme="auto" data-callback="onTurnstileSuccess"></div>
-                </div>
-                {% endif %}
-                <button type="submit" class="auth-submit" id="verify-btn">
-                    Continue to Edosaic <i data-lucide="arrow-right" style="width:18px;height:18px;"></i>
-                </button>
-            </form>
-
-            <div class="auth-footer" style="margin-top:16px;">
-                <span style="font-size:12px;color:var(--text-tertiary);">Protected by Cloudflare Turnstile</span>
-            </div>
+        <div class="verify-footer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Performance and Security by Cloudflare
         </div>
     </div>
 </div>
 
-{% if not TURNSTILE_SITE_KEY %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('verify-btn').disabled = false;
-});
+function onVerifySuccess(token) {
+    document.getElementById('verify-status').innerHTML = '<span style="color:#22c55e;">&#10003; Verification successful</span>';
+    document.getElementById('verify-btn').style.display = 'flex';
+    document.getElementById('verify-form').submit();
+}
+function onVerifyError() {
+    document.getElementById('verify-status').innerHTML = '<span style="color:#ef4444;">&#10007; Verification failed — please refresh</span>';
+}
 </script>
-{% endif %}
 {% endblock %}
