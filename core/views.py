@@ -19,6 +19,7 @@ def log_audit(user, action, details="", collection=""):
     )
 
 
+@login_required
 def dashboard_router(request):
     role = request.user.role
     if role == 'admin':
@@ -1031,3 +1032,24 @@ def student_events(request):
     inst = request.user.institution
     events = Event.objects.filter(institution=inst).order_by('-start_date')
     return render(request, 'student/events.html', {'events': events})
+
+
+@login_required
+def admin_settings(request):
+    if request.user.role != 'admin':
+        return redirect('core:dashboard')
+    inst = request.user.institution
+    return render(request, 'admin_panel/settings.html', {'inst': inst})
+
+
+@login_required
+def admin_regenerate_invite(request):
+    if request.user.role != 'admin':
+        return redirect('core:dashboard')
+    if request.method == 'POST':
+        inst = request.user.institution
+        inst.invite_code = ''
+        inst.save()
+        log_audit(request.user, 'regenerate_invite', f"Regenerated invite code for {inst.name}", 'institution')
+        messages.success(request, f'New invite code generated: {inst.invite_code}')
+    return redirect('core:admin_settings')

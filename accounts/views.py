@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django_ratelimit.decorators import ratelimit
 from .models import User
 from core.models import Institution, Student, Faculty, Parent
 from django.db import transaction
@@ -14,6 +15,7 @@ def landing_page(request):
     return render(request, 'accounts/landing.html')
 
 
+@ratelimit(key='ip', rate='5/m', method='POST', block=True)
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('core:dashboard')
@@ -30,7 +32,8 @@ def login_view(request):
 
 
 def logout_view(request):
-    logout(request)
+    if request.method == 'POST':
+        logout(request)
     return redirect('accounts:login')
 
 
@@ -41,7 +44,7 @@ def role_select(request):
         return redirect('core:dashboard')
     if request.method == 'POST':
         role = request.POST.get('role', '')
-        if role in ['admin', 'accountant', 'faculty', 'student', 'parent']:
+        if role in ['accountant', 'faculty', 'student', 'parent']:
             user.role = role
             user.save()
             return redirect('core:dashboard')
@@ -49,6 +52,7 @@ def role_select(request):
     return render(request, 'accounts/role_select.html')
 
 
+@ratelimit(key='ip', rate='3/m', method='POST', block=True)
 def register_institution(request):
     if request.method == 'POST':
         inst_name = request.POST.get('inst_name', '').strip()
@@ -140,88 +144,139 @@ def profile_view(request):
     return render(request, 'accounts/profile.html', {'profile_data': profile_data})
 
 
+@ratelimit(key='ip', rate='5/m', method='POST', block=True)
 def self_register(request):
     if request.user.is_authenticated:
         return redirect('core:dashboard')
-    institutions = Institution.objects.filter(is_active=True).order_by('name')
 
     if request.method == 'POST':
+        step = request.POST.get('step', '1')
+        invite_code = request.POST.get('invite_code', '').strip().upper()
+        inst_id = request.POST.get('inst_id', '')
         role = request.POST.get('role', '').strip()
-        inst_id = request.POST.get('institution', '')
         full_name = request.POST.get('full_name', '').strip()
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
         confirm = request.POST.get('confirm_password', '')
         phone = request.POST.get('phone', '').strip()
 
-        form_data = {
-            'role': role, 'full_name': full_name, 'username': username,
-            'phone': phone, 'inst_id': inst_id,
-        }
+        if step == '1':
+            if not invite_code:
+                messages.error(request, 'Please enter an invite code.')
+                return render(request, 'accounts/self_register.html', {'step': '1'})
+            try:
+                institution = Institution.objects.get(invite_code=invite_code, is_active=True)
+            except Institution.DoesNotExist:
+                messages.error(request, 'Invalid invite code. Please check with your institution.')
+                return render(request, 'accounts/self_register.html', {'step': '1'})
+            return render(request, 'accounts/self_register.html', {
+                'step': '2', 'institution': institution,
+                'inst_id': institution.id, 'invite_code': invite_code,
+            })
 
-        errors = []
-        if role not in ['student', 'faculty', 'parent', 'accountant']:
-            errors.append('Please select a valid role.')
-        if not inst_id:
-            errors.append('Please select your institution.')
-        if not full_name:
-            errors.append('Full name is required.')
-        if not username:
-            errors.append('Username is required.')
-        if User.objects.filter(username=username).exists():
-            errors.append('Username already taken.')
-        if len(password) < 6:
-            errors.append('Password must be at least 6 characters.')
-        if password != confirm:
-            errors.append('Passwords do not match.')
+        elif step == '2':
+            try:
+                institution = Institution.objects.get(pk=inst_id, is_active=True)
+            except Institution.DoesNotExist:
+                messages.error(request, 'Institution not found.')
+                return render(request, 'accounts/self_register.html', {'step': '1'})
+            if role not in ['student', 'faculty', 'parent', 'accountant', 'librarian']:
+                messages.error(request, 'Please select a valid role.')
+                return render(request, 'accounts/self_register.html', {
+                    'step': '2', 'institution': institution,
+                    'inst_id': inst_id, 'invite_code': invite_code,
+                })
+            if not full_name:
+                messages.error(request, 'Full name is required.')
+                return render(request, 'accounts/self_register.html', {
+                    'step': '2', 'institution': institution,
+                    'inst_id': inst_id, 'invite_code': invite_code,
+                })
+            if not username:
+                messages.error(request, 'Username is required.')
+                return render(request, 'accounts/self_register.html', {
+                    'step': '2', 'institution': institution,
+                    'inst_id': inst_id, 'invite_code': invite_code,
+                })
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'Username already taken.')
+                return render(request, 'accounts/self_register.html', {
+                    'step': '2', 'institution': institution,
+                    'inst_id': inst_id, 'invite_code': invite_code,
+                })
+            if len(password) < 6:
+                messages.error(request, 'Password must be at least 6 characters.')
+                return render(request, 'accounts/self_register.html', {
+                    'step': '2', 'institution': institution,
+                    'inst_id': inst_id, 'invite_code': invite_code,
+                })
+            if password != confirm:
+                messages.error(request, 'Passwords do not match.')
+                return render(request, 'accounts/self_register.html', {
+                    'step': '2', 'institution': institution,
+                    'inst_id': inst_id, 'invite_code': invite_code,
+                })
+            return render(request, 'accounts/self_register.html', {
+                'step': '3', 'institution': institution,
+                'inst_id': inst_id, 'invite_code': invite_code,
+                'role': role, 'full_name': full_name,
+                'username': username, 'phone': phone,
+            })
 
-        if errors:
-            for e in errors:
-                messages.error(request, e)
-            return render(request, 'accounts/self_register.html', {**form_data, 'institutions': institutions})
+        elif step == '3':
+            try:
+                institution = Institution.objects.get(pk=inst_id, is_active=True)
+            except Institution.DoesNotExist:
+                messages.error(request, 'Institution not found.')
+                return render(request, 'accounts/self_register.html', {'step': '1'})
+            if role not in ['student', 'faculty', 'parent', 'accountant', 'librarian']:
+                messages.error(request, 'Invalid role.')
+                return redirect('accounts:self_register')
+            if not full_name or not username or not password:
+                messages.error(request, 'Missing required fields.')
+                return redirect('accounts:self_register')
 
-        institution = get_object_or_404(Institution, pk=inst_id, is_active=True)
-        user = User.objects.create_user(
-            username=username, password=password,
-            role=role, institution=institution, first_name=full_name,
-            phone=phone,
-        )
-
-        if role == 'student':
-            age = request.POST.get('age', 18)
-            sex = request.POST.get('sex', 'Male')
-            Student.objects.create(
-                institution=institution, user=user,
-                name=full_name, age=int(age) if age else 18,
-                sex=sex, phone=phone,
+            user = User.objects.create_user(
+                username=username, password=password,
+                role=role, institution=institution, first_name=full_name,
+                phone=phone,
             )
-        elif role == 'faculty':
-            department = request.POST.get('department', '').strip()
-            qualification = request.POST.get('qualification', '').strip()
-            email = request.POST.get('email', '').strip()
-            Faculty.objects.create(
-                institution=institution, user=user,
-                name=full_name, department=department,
-                phone=phone, qualification=qualification, email=email,
-            )
-        elif role == 'parent':
-            email = request.POST.get('email', '').strip()
-            relationship = request.POST.get('relationship', '').strip()
-            child_name = request.POST.get('child_name', '').strip()
-            child = None
-            if child_name:
-                child = Student.objects.filter(
-                    institution=institution, name__icontains=child_name
-                ).first()
-            if child:
-                Parent.objects.create(
+
+            if role == 'student':
+                age = request.POST.get('age', 18)
+                sex = request.POST.get('sex', 'Male')
+                Student.objects.create(
                     institution=institution, user=user,
-                    name=full_name, phone=phone, email=email,
-                    relationship=relationship, child=child,
+                    name=full_name, age=int(age) if age else 18,
+                    sex=sex, phone=phone,
                 )
+            elif role == 'faculty':
+                department = request.POST.get('department', '').strip()
+                qualification = request.POST.get('qualification', '').strip()
+                email = request.POST.get('email', '').strip()
+                Faculty.objects.create(
+                    institution=institution, user=user,
+                    name=full_name, department=department,
+                    phone=phone, qualification=qualification, email=email,
+                )
+            elif role == 'parent':
+                email = request.POST.get('email', '').strip()
+                relationship = request.POST.get('relationship', '').strip()
+                child_name = request.POST.get('child_name', '').strip()
+                child = None
+                if child_name:
+                    child = Student.objects.filter(
+                        institution=institution, name__icontains=child_name
+                    ).first()
+                if child:
+                    Parent.objects.create(
+                        institution=institution, user=user,
+                        name=full_name, phone=phone, email=email,
+                        relationship=relationship, child=child,
+                    )
 
-        login(request, user)
-        messages.success(request, f'Welcome to Edosaic, {full_name}!')
-        return redirect('core:dashboard')
+            login(request, user)
+            messages.success(request, f'Welcome to {institution.name}, {full_name}!')
+            return redirect('core:dashboard')
 
-    return render(request, 'accounts/self_register.html', {'institutions': institutions})
+    return render(request, 'accounts/self_register.html', {'step': '1'})

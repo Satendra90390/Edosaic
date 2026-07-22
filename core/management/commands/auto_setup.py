@@ -1,12 +1,11 @@
 import os
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
-from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 
 
 class Command(BaseCommand):
-    help = 'Run migrations, create site, and create default admin user'
+    help = 'Run migrations, create site, and ensure site configuration'
 
     def handle(self, *args, **options):
         self.stdout.write('Running migrations...')
@@ -24,14 +23,4 @@ class Command(BaseCommand):
         site.name = 'Edosaic'
         site.save()
 
-        User = get_user_model()
-        if not User.objects.filter(username='admin').exists():
-            self.stdout.write('Creating admin user...')
-            User.objects.create_superuser(
-                username='admin',
-                email='admin@edosaic.com',
-                password='admin123',
-            )
-            self.stdout.write(self.style.SUCCESS('Admin user created: admin / admin123'))
-        else:
-            self.stdout.write('Admin user already exists.')
+        self.stdout.write(self.style.SUCCESS('Site setup complete. Create admin via: python manage.py createsuperuser'))

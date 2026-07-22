@@ -4,6 +4,7 @@ import requests
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
+from django_ratelimit.decorators import ratelimit
 from .models import (
     Student, Faculty, Course, Attendance, Result, Fee,
     FacultyTeaching,
@@ -82,6 +83,7 @@ def build_context(user):
 
 
 @login_required
+@ratelimit(key='user', rate='20/m', method='POST', block=True)
 def chat_api(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)

@@ -1,5 +1,15 @@
 from django.db import models
 from django.utils import timezone
+import string
+import random
+
+
+def generate_invite_code():
+    chars = string.ascii_uppercase + string.digits
+    while True:
+        code = ''.join(random.choices(chars, k=8))
+        if not Institution.objects.filter(invite_code=code).exists():
+            return code
 
 
 class Institution(models.Model):
@@ -12,11 +22,17 @@ class Institution(models.Model):
     phone = models.CharField(max_length=15)
     email = models.EmailField(blank=True)
     address = models.TextField(blank=True)
+    invite_code = models.CharField(max_length=8, unique=True, blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'institutions'
+
+    def save(self, *args, **kwargs):
+        if not self.invite_code:
+            self.invite_code = generate_invite_code()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

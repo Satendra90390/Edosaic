@@ -1,11 +1,41 @@
 # Edosaic — Student Management System
 ---
 
-## Overview
+## About
 
-Edosaic is a role-based web application built with Django that helps schools, colleges, universities, and coaching centers manage students, faculty, courses, attendance, grades, and fees — all from a single dashboard.
+**Edosaic** is a comprehensive, role-based Student Management System built with Django, designed to streamline academic administration for schools, colleges, universities, and coaching centers. It provides a centralized platform to manage students, faculty, courses, attendance, grades, fees, exams, library resources, and events — all accessible through secure, role-specific dashboards.
 
-It includes **STAN**, an AI assistant powered by Groq's Llama 3.1, context-aware to your institution's data.
+What sets Edosaic apart is **STAN** — an integrated AI chatbot powered by Groq's Llama 3.1 8B model that is context-aware of your institution's data. STAN can answer real-time questions about student counts, attendance rates, fee collections, and academic performance, making administrative decisions faster and smarter.
+
+### Key Highlights
+
+- **Multi-Tenant Architecture** — Complete data isolation between institutions using a shared codebase
+- **6 Role-Based Dashboards** — Admin, Accountant, Librarian, Faculty, Student, and Parent, each with tailored permissions and views
+- **AI-Powered Assistant (STAN)** — Context-aware chatbot that queries your institution's live data
+- **Full Academic Workflow** — Courses, branches, subjects, faculty assignments, attendance, exams, results, and grade tracking
+- **Library & Event Management** — Book inventory, issue/return tracking, fine management, and institutional event scheduling
+- **OAuth Authentication** — Secure login via Google and GitHub, plus invite-code-based self-registration
+- **Dual Theme UI** — Light mode with professional gradients and dark mode with glassmorphism and neon accents
+- **Responsive Design** — Fully functional on desktop, tablet, and mobile devices
+- **Production-Ready** — Dockerized with Gunicorn, PostgreSQL, and auto-deploy support via Render.com and Oracle Cloud
+
+### Security
+
+- **CSRF Protection** — Enabled on all forms with `{% csrf_token %}` and API endpoints via `X-CSRFToken` header
+- **XSS Prevention** — Django template auto-escaping enabled; no `mark_safe` or `|safe` usage; client-side `escapeHtml()` for chat messages
+- **SQL Injection Safe** — Pure Django ORM usage; no raw SQL queries anywhere in the codebase
+- **Rate Limiting** — `django-ratelimit` on login (5/min), registration (3/min), and chat endpoints (10-20/min)
+- **HTTPS Enforcement** — HSTS headers, SSL redirect, and secure cookies enabled in production
+- **Password Validation** — Minimum 8 characters with common password, numeric password, and user attribute similarity checks
+- **Role-Based Access Control** — Every dashboard view checks `request.user.role`; OAuth users cannot self-select admin
+- **CSRF-Protected Logout** — Logout requires POST with CSRF token, preventing session fixation via GET
+- **Session Security** — `HttpOnly` and `Secure` flags on session and CSRF cookies in production
+- **Docker Hardening** — Non-root container user, PostgreSQL not exposed to host, no default DB password fallback
+- **Secrets Management** — All secrets via environment variables; `DEBUG` defaults to `False`; `SECRET_KEY` required (fails if missing)
+
+### Built With
+
+Python 3.12 · Django 6.0.7 · PostgreSQL 16 · django-allauth · Groq API · Docker · Render.com
 
 ## Features
 

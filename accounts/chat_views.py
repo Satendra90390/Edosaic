@@ -4,6 +4,7 @@ import requests
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django_ratelimit.decorators import ratelimit
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = "llama-3.1-8b-instant"
@@ -18,6 +19,7 @@ Only answer questions about Edosaic. Politely redirect unrelated questions."""
 
 @csrf_exempt
 @require_POST
+@ratelimit(key='ip', rate='10/m', method='POST', block=True)
 def public_chat_api(request):
     try:
         data = json.loads(request.body)

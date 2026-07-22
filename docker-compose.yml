@@ -7,9 +7,9 @@ services:
     environment:
       POSTGRES_DB: sms_pro
       POSTGRES_USER: sms_admin
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme_in_production}
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    env_file:
+      - .env
 
   web:
     build: .
@@ -21,7 +21,7 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgres://sms_admin:${DB_PASSWORD:-changeme_in_production}@db:5432/sms_pro
+      - DATABASE_URL=postgres://sms_admin:${DB_PASSWORD}@db:5432/sms_pro
 
 volumes:
   pgdata:
