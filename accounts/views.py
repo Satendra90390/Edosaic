@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django_ratelimit.decorators import ratelimit
+from sms_django.turnstile import verify_turnstile
 from .models import User
 from core.models import Institution, Student, Faculty, Parent
 from django.db import transaction
@@ -20,6 +21,10 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('core:dashboard')
     if request.method == 'POST':
+        token = request.POST.get('cf-turnstile-response', '')
+        if not verify_turnstile(token, request.META.get('REMOTE_ADDR')):
+            messages.error(request, 'Human verification failed. Please try again.')
+            return render(request, 'accounts/login.html')
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
         user = authenticate(request, username=username, password=password)
@@ -55,6 +60,10 @@ def role_select(request):
 @ratelimit(key='ip', rate='3/m', method='POST', block=True)
 def register_institution(request):
     if request.method == 'POST':
+        token = request.POST.get('cf-turnstile-response', '')
+        if not verify_turnstile(token, request.META.get('REMOTE_ADDR')):
+            messages.error(request, 'Human verification failed. Please try again.')
+            return render(request, 'accounts/register.html')
         inst_name = request.POST.get('inst_name', '').strip()
         inst_type = request.POST.get('inst_type', 'College')
         inst_phone = request.POST.get('inst_phone', '').strip()
@@ -224,6 +233,15 @@ def self_register(request):
             })
 
         elif step == '3':
+            token = request.POST.get('cf-turnstile-response', '')
+            if not verify_turnstile(token, request.META.get('REMOTE_ADDR')):
+                messages.error(request, 'Human verification failed. Please try again.')
+                return render(request, 'accounts/self_register.html', {
+                    'step': '3', 'institution': institution,
+                    'inst_id': inst_id, 'invite_code': invite_code,
+                    'role': role, 'full_name': full_name,
+                    'username': username, 'phone': phone,
+                })
             try:
                 institution = Institution.objects.get(pk=inst_id, is_active=True)
             except Institution.DoesNotExist:

@@ -204,6 +204,11 @@
                         <button type="button" class="btn btn-secondary" style="flex:0 0 auto;padding:14px 20px;" onclick="goToStep1()">
                             <i data-lucide="arrow-left" style="width:18px;height:18px;"></i>
                         </button>
+                        {% if TURNSTILE_SITE_KEY %}
+                        <div style="flex:1;">
+                            <div class="cf-turnstile" data-sitekey="{{ TURNSTILE_SITE_KEY }}" data-theme="auto"></div>
+                        </div>
+                        {% endif %}
                         <button type="button" class="auth-submit" style="flex:1;" onclick="submitRegister()">
                             Create Institution <i data-lucide="check" style="width:18px;height:18px;"></i>
                         </button>

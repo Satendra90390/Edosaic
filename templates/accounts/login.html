@@ -113,6 +113,11 @@
                     </label>
                     <a href="#" class="forgot-link">Forgot password?</a>
                 </div>
+                {% if TURNSTILE_SITE_KEY %}
+                <div class="form-group" style="margin-bottom:16px;">
+                    <div class="cf-turnstile" data-sitekey="{{ TURNSTILE_SITE_KEY }}" data-theme="auto"></div>
+                </div>
+                {% endif %}
                 <button type="submit" class="auth-submit">Sign In <i data-lucide="arrow-right" style="width:18px;height:18px;"></i></button>
             </form>
 

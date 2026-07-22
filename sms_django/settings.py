@@ -61,6 +61,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'sms_django.context_processors.turnstile_context',
             ],
         },
     },
@@ -132,6 +133,9 @@ LOGOUT_REDIRECT_URL = '/'
 
 SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
 SOCIALACCOUNT_LOGIN_REDIRECT_URL = '/accounts/role-select/'
+
+TURNSTILE_SITE_KEY = os.getenv('TURNSTILE_SITE_KEY', '')
+TURNSTILE_SECRET_KEY = os.getenv('TURNSTILE_SECRET_KEY', '')
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {

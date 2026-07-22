@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
     <link rel="stylesheet" href="{% static 'css/chat.css' %}?v=3">
     {% block extra_css %}{% endblock %}
+    {% if TURNSTILE_SITE_KEY %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {% endif %}
     <script>
         (function() {
             var saved = localStorage.getItem('sms-theme');
@@ -164,13 +167,25 @@
 
         addTyping();
 
+        var payload = {message: msg, history: chatHistory.slice(-10)};
+        {% if not user.is_authenticated and TURNSTILE_SITE_KEY %}
+        var turnstileResponse = '';
+        var turnstileInput = document.querySelector('[name="cf-turnstile-response"]');
+        if (turnstileInput) turnstileResponse = turnstileInput.value;
+        if (!turnstileResponse && typeof turnstile !== 'undefined') {
+            var widgetId = document.querySelector('.cf-turnstile');
+            if (widgetId) turnstileResponse = turnstile.getResponse(widgetId);
+        }
+        payload.turnstile_token = turnstileResponse;
+        {% endif %}
+
         fetch(chatApiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
             },
-            body: JSON.stringify({message: msg, history: chatHistory.slice(-10)})
+            body: JSON.stringify(payload)
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
