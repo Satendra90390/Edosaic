@@ -1,9 +1,4 @@
 # Edosaic — Student Management System
-
-> A full-featured, multi-tenant student management platform for educational institutions.
-
-**Live Demo:** [edosaic.onrender.com](https://edosaic.onrender.com/)
-
 ---
 
 ## Overview
