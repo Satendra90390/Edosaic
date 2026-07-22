@@ -41,6 +41,7 @@
         <span class="icon-moon">&#9790;</span>
     </button>
 
+    {% block chat_widget %}
     {% if user.is_authenticated %}
     <!-- STAN Chat Widget -->
     <div id="chat-widget">
@@ -98,6 +99,7 @@
         </div>
     </div>
     {% endif %}
+    {% endblock chat_widget %}
 
     {% if user.is_authenticated %}
     <script>
