@@ -327,3 +327,43 @@
     border-color: var(--accent);
     transform: scale(1.1);
 }
+
+.chat-link-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    margin-top: 6px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-default);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    word-break: break-all;
+}
+.chat-link-card:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+.chat-link-card:hover .chat-link-icon svg {
+    stroke: #fff;
+}
+.chat-link-icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+.chat-link-icon svg {
+    stroke: var(--accent);
+    transition: stroke 0.2s;
+}
+.chat-link-url {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 220px;
+}

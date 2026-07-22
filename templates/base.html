@@ -142,10 +142,20 @@
         var msgs = document.getElementById('chat-messages');
         var div = document.createElement('div');
         div.className = 'chat-msg ' + sender;
-        div.innerHTML = '<div class="chat-avatar">' + (sender === 'bot' ? 'S' : 'You') + '</div><div class="chat-bubble">' + escapeHtml(text) + '</div>';
+        var content = sender === 'bot' ? formatBotText(text) : escapeHtml(text);
+        div.innerHTML = '<div class="chat-avatar">' + (sender === 'bot' ? 'S' : 'You') + '</div><div class="chat-bubble">' + content + '</div>';
         msgs.appendChild(div);
         msgs.scrollTop = msgs.scrollHeight;
         return div;
+    }
+
+    function formatBotText(text) {
+        var escaped = escapeHtml(text);
+        var urlRegex = /(https?:\/\/[^\s<]+)/g;
+        escaped = escaped.replace(urlRegex, function(url) {
+            return '<a href="' + url + '" target="_blank" rel="noopener" class="chat-link-card"><span class="chat-link-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span><span class="chat-link-url">' + url + '</span></a>';
+        });
+        return escaped.replace(/\n/g, '<br>');
     }
 
     function addTyping() {
