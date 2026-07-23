@@ -99,8 +99,8 @@ window.addEventListener('load', function() {
             <a href="#home">Home</a>
             <a href="#features">Features</a>
             <a href="#about">About</a>
-            <a href="#contact">Why</a>
-            <a href="#footer">Contact</a>
+            <a href="#why">Why</a>
+            <a href="#faq">FAQ</a>
         </div>
         <div class="nav-actions">
             <button class="theme-toggle-nav" onclick="toggleTheme()" aria-label="Toggle theme">
@@ -326,7 +326,7 @@ window.addEventListener('load', function() {
 </section>
 
 <!-- WHY SMS PRO SECTION -->
-<section class="why-section" id="contact">
+<section class="why-section" id="why">
     <div class="section-inner">
         <div class="section-header">
             <div class="section-badge">Why Edosaic</div>
@@ -377,6 +377,75 @@ window.addEventListener('load', function() {
                 <a href="{% url 'accounts:self_register' %}" class="btn btn-hero-primary">Get Started Free <i data-lucide="arrow-right" style="width:18px;height:18px;"></i></a>
                 <a href="{% url 'accounts:login' %}" class="btn btn-hero-outline">Sign In</a>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ SECTION -->
+<section class="faq-section" id="faq">
+    <div class="section-inner">
+        <div class="section-header">
+            <div class="section-badge">FAQ</div>
+            <h2>Frequently Asked Questions</h2>
+            <p>Everything you need to know about Edosaic.</p>
+        </div>
+        <div class="faq-list">
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>What is Edosaic?</span>
+                    <i data-lucide="chevron-down" style="width:20px;height:20px;"></i>
+                </summary>
+                <div class="faq-answer">Edosaic is a complete student management platform built for schools, colleges, universities, and coaching centers. It handles student records, attendance, fees, exams, timetable scheduling, and more — all in one place.</div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>Is Edosaic free to use?</span>
+                    <i data-lucide="chevron-down" style="width:20px;height:20px;"></i>
+                </summary>
+                <div class="faq-answer">Yes. Edosaic is free for small institutions. You can deploy it on Render, Oracle Cloud, or any Docker-compatible host. No credit card required.</div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>What is STAN — the AI assistant?</span>
+                    <i data-lucide="chevron-down" style="width:20px;height:20px;"></i>
+                </summary>
+                <div class="faq-answer">STAN is a built-in AI chatbot powered by Llama 3.3. It understands your institution's data and can answer questions about students, attendance, fees, and academics instantly — right from the dashboard.</div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>Can multiple institutions use the same platform?</span>
+                    <i data-lucide="chevron-down" style="width:20px;height:20px;"></i>
+                </summary>
+                <div class="faq-answer">Yes. Edosaic uses a multi-tenant architecture. Each institution gets its own isolated data space, so multiple schools or branches can coexist securely on a single deployment.</div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>What roles are supported?</span>
+                    <i data-lucide="chevron-down" style="width:20px;height:20px;"></i>
+                </summary>
+                <div class="faq-answer">Edosaic supports four roles — Admin, Faculty, Student, and Parent. Each role has a tailored dashboard with specific views and permissions.</div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>How do I deploy Edosaic?</span>
+                    <i data-lucide="chevron-down" style="width:20px;height:20px;"></i>
+                </summary>
+                <div class="faq-answer">Clone the repo, configure your environment variables, and deploy with Docker or directly to Render. The included Dockerfile and render.yaml make it a one-click process.</div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>Is my data secure?</span>
+                    <i data-lucide="chevron-down" style="width:20px;height:20px;"></i>
+                </summary>
+                <div class="faq-answer">Absolutely. Edosaic uses role-based access control, encrypted connections, and isolated tenant databases. Each institution's data is completely separated from others.</div>
+            </details>
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>Can I use Edosaic on my phone?</span>
+                    <i data-lucide="chevron-down" style="width:20px;height:20px;"></i>
+                </summary>
+                <div class="faq-answer">Yes. Edosaic is fully responsive and works on desktop, tablet, and mobile. You can manage your institution from anywhere.</div>
+            </details>
         </div>
     </div>
 </section>
