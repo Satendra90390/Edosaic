@@ -46,7 +46,7 @@ def login_view(request):
         password = request.POST.get('password', '')
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('core:dashboard')
         else:
             messages.error(request, 'Invalid username or password.')
@@ -372,7 +372,7 @@ def self_register(request):
                         relationship=relationship, child=child,
                     )
 
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, f'Welcome to {institution.name}, {full_name}!')
             return redirect('core:dashboard')
 
