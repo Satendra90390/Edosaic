@@ -269,9 +269,8 @@
 
 /* ── Social Login ───────────────────────────────────────── */
 .social-login {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    display: flex;
+    justify-content: center;
     margin-bottom: 24px;
 }
 
@@ -279,18 +278,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 11px 16px;
+    gap: 10px;
+    padding: 12px 24px;
     background: var(--input-bg);
     border: 1.5px solid var(--border-default);
     border-radius: var(--r-md);
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
     text-decoration: none;
     transition: all var(--duration) var(--ease);
+    width: 100%;
+    max-width: 320px;
 }
 
 .social-btn:hover {
@@ -676,6 +677,5 @@
 @media (max-width: 480px) {
     .auth-form-panel { padding: 24px 20px; }
     .auth-card-header h1 { font-size: 22px; }
-    .social-login { grid-template-columns: 1fr; }
     .auth-options { flex-direction: column; gap: 12px; align-items: flex-start; }
 }
