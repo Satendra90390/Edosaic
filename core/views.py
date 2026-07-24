@@ -82,7 +82,7 @@ def admin_students(request):
         except Student.DoesNotExist:
             messages.error(request, 'Student not found.')
         return redirect('core:admin_students')
-    return render(request, 'admin_panel/students.html', {'students': students})
+    return render(request, 'admin_panel/students.html', {'students': students, 'institution': inst})
 
 
 @login_required
@@ -90,11 +90,17 @@ def admin_add_student(request):
     if request.user.role != 'chairman':
         return redirect('core:dashboard')
     inst = request.user.institution
+    courses = Course.objects.filter(institution=inst).order_by('name')
     if request.method == 'POST':
         name = request.POST.get('name', '').strip()
         age = request.POST.get('age', 18)
         sex = request.POST.get('sex', 'Male')
         phone = request.POST.get('phone', '').strip()
+        course_id = request.POST.get('course', '')
+        year = request.POST.get('year', '').strip()
+        semester = request.POST.get('semester', '').strip()
+        class_name = request.POST.get('class_name', '').strip()
+        section = request.POST.get('section', '').strip()
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
 
@@ -111,20 +117,23 @@ def admin_add_student(request):
         if errors:
             for e in errors:
                 messages.error(request, e)
-            return render(request, 'admin_panel/add_student.html')
+            return render(request, 'admin_panel/add_student.html', {'institution': inst, 'courses': courses})
 
         user = User.objects.create_user(
             username=username, password=password,
             role='student', institution=inst,
         )
-        student = Student.objects.create(
+        course = Course.objects.filter(pk=course_id, institution=inst).first() if course_id else None
+        Student.objects.create(
             institution=inst, user=user, name=name,
-            age=int(age), sex=sex, phone=phone,
+            age=int(age) if age else 18, sex=sex, phone=phone,
+            course=course, year=year, semester=semester,
+            class_name=class_name, section=section,
         )
         log_audit(request.user, 'add_student', f"Added student {name}", 'student_details')
         messages.success(request, f'Student "{name}" added successfully.')
         return redirect('core:admin_students')
-    return render(request, 'admin_panel/add_student.html')
+    return render(request, 'admin_panel/add_student.html', {'institution': inst, 'courses': courses})
 
 
 @login_required
@@ -795,21 +804,27 @@ def faculty_students(request):
     except Faculty.DoesNotExist:
         return redirect('core:dashboard')
     my_course_ids = faculty_obj.courses.values_list('id', flat=True)
-    students = Student.objects.filter(institution=inst, course__id__in=my_course_ids).order_by('name')
+    if inst.inst_type in ('School', 'Coaching'):
+        students = Student.objects.filter(institution=inst).order_by('name')
+    else:
+        students = Student.objects.filter(institution=inst, course__id__in=my_course_ids).order_by('name')
     q = request.GET.get('q', '').strip()
     if q:
         students = students.filter(Q(name__icontains=q) | Q(phone__icontains=q))
     if request.method == 'POST' and request.POST.get('delete_id'):
         sid = request.POST.get('delete_id')
         try:
-            s = Student.objects.get(pk=sid, institution=inst, course__id__in=my_course_ids)
+            if inst.inst_type in ('School', 'Coaching'):
+                s = Student.objects.get(pk=sid, institution=inst)
+            else:
+                s = Student.objects.get(pk=sid, institution=inst, course__id__in=my_course_ids)
             log_audit(request.user, 'delete_student', f"Deleted student {s.name}", 'student_details')
             s.delete()
             messages.success(request, f'Student "{s.name}" deleted.')
         except Student.DoesNotExist:
             messages.error(request, 'Student not found.')
         return redirect('core:faculty_students')
-    return render(request, 'faculty/students.html', {'students': students, 'q': q, 'faculty_obj': faculty_obj})
+    return render(request, 'faculty/students.html', {'students': students, 'q': q, 'faculty_obj': faculty_obj, 'institution': inst})
 
 
 @login_required
@@ -831,6 +846,7 @@ def faculty_add_student(request):
         year = request.POST.get('year', '').strip()
         semester = request.POST.get('semester', '').strip()
         class_name = request.POST.get('class_name', '').strip()
+        section = request.POST.get('section', '').strip()
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
 
@@ -846,7 +862,7 @@ def faculty_add_student(request):
         if errors:
             for e in errors:
                 messages.error(request, e)
-            return render(request, 'faculty/add_student.html', {'courses': courses})
+            return render(request, 'faculty/add_student.html', {'courses': courses, 'institution': inst})
 
         user = User.objects.create_user(
             username=username, password=password,
@@ -856,12 +872,13 @@ def faculty_add_student(request):
         Student.objects.create(
             institution=inst, user=user, name=name,
             age=int(age) if age else 18, sex=sex, phone=phone,
-            course=course, year=year, semester=semester, class_name=class_name,
+            course=course, year=year, semester=semester,
+            class_name=class_name, section=section,
         )
         log_audit(request.user, 'add_student', f"Added student {name}", 'student_details')
         messages.success(request, f'Student "{name}" added successfully.')
         return redirect('core:faculty_students')
-    return render(request, 'faculty/add_student.html', {'courses': courses})
+    return render(request, 'faculty/add_student.html', {'courses': courses, 'institution': inst})
 
 
 @login_required

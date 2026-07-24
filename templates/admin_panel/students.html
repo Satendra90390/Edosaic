@@ -33,8 +33,17 @@
                         <tr>
                             <th>#</th>
                             <th>Name</th>
-                            <th>Age</th>
-                            <th>Gender</th>
+                            {% if institution.inst_type == 'School' %}
+                            <th>Class</th>
+                            <th>Section</th>
+                            {% elif institution.inst_type == 'Coaching' %}
+                            <th>Course / Batch</th>
+                            <th>Class</th>
+                            {% else %}
+                            <th>Course</th>
+                            <th>Year</th>
+                            <th>Semester</th>
+                            {% endif %}
                             <th>Phone</th>
                             {% if user.role != 'chairman' %}<th>Actions</th>{% endif %}
                         </tr>
@@ -44,8 +53,17 @@
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td class="td-name">{{ student.name }}</td>
-                            <td>{{ student.age }}</td>
-                            <td><span class="badge {% if student.sex == 'Male' %}badge-blue{% elif student.sex == 'Female' %}badge-purple{% else %}badge-yellow{% endif %}">{{ student.sex }}</span></td>
+                            {% if institution.inst_type == 'School' %}
+                            <td><span class="badge badge-blue">{{ student.class_name|default:"-" }}</span></td>
+                            <td><span class="badge badge-purple">{{ student.section|default:"-" }}</span></td>
+                            {% elif institution.inst_type == 'Coaching' %}
+                            <td>{{ student.course.name|default:"-" }}</td>
+                            <td>{{ student.class_name|default:"-" }}</td>
+                            {% else %}
+                            <td>{{ student.course.name|default:"-" }}</td>
+                            <td><span class="badge badge-blue">{{ student.year|default:"-" }}</span></td>
+                            <td><span class="badge badge-purple">{{ student.semester|default:"-" }}</span></td>
+                            {% endif %}
                             <td>{{ student.phone }}</td>
                             {% if user.role != 'chairman' %}
                             <td>
@@ -59,7 +77,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6">
+                            <td colspan="{% if institution.inst_type == 'School' or institution.inst_type == 'Coaching' %}6{% else %}7{% endif %}">
                                 <div class="empty-state"><div class="icon"><i data-lucide="graduation-cap" style="width:48px;height:48px;"></i></div><h3>No students found</h3></div>
                             </td>
                         </tr>

@@ -104,6 +104,7 @@ class Student(models.Model):
     branch = models.ForeignKey('Branch', on_delete=models.SET_NULL, null=True, blank=True, related_name='enrolled_students')
     year = models.CharField(max_length=50, blank=True)
     semester = models.CharField(max_length=50, blank=True)
+    section = models.CharField(max_length=20, blank=True)
     class_name = models.CharField(max_length=50, blank=True)
     is_cr = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

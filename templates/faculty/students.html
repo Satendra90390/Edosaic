@@ -53,9 +53,17 @@
                         <tr>
                             <th>#</th>
                             <th>Name</th>
+                            {% if institution.inst_type == 'School' %}
+                            <th>Class</th>
+                            <th>Section</th>
+                            {% elif institution.inst_type == 'Coaching' %}
+                            <th>Course / Batch</th>
+                            <th>Class</th>
+                            {% else %}
                             <th>Course</th>
                             <th>Year</th>
                             <th>Semester</th>
+                            {% endif %}
                             <th>Phone</th>
                             <th>Actions</th>
                         </tr>
@@ -70,9 +78,17 @@
                                     {{ student.user.get_full_name|default:student.user.username }}
                                 </div>
                             </td>
+                            {% if institution.inst_type == 'School' %}
+                            <td><span class="badge badge-blue">{{ student.class_name|default:"-" }}</span></td>
+                            <td><span class="badge badge-purple">{{ student.section|default:"-" }}</span></td>
+                            {% elif institution.inst_type == 'Coaching' %}
+                            <td>{{ student.course.name|default:"-" }}</td>
+                            <td>{{ student.class_name|default:"-" }}</td>
+                            {% else %}
                             <td>{{ student.course.name|default:"-" }}</td>
                             <td><span class="badge badge-blue">{{ student.year|default:"-" }}</span></td>
                             <td><span class="badge badge-purple">{{ student.semester|default:"-" }}</span></td>
+                            {% endif %}
                             <td>{{ student.phone|default:"-" }}</td>
                             <td>
                                 <form method="post" action="{% url 'core:faculty_students' %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to remove this student?');">
@@ -84,7 +100,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7">
+                            <td colspan="{% if institution.inst_type == 'School' %}6{% elif institution.inst_type == 'Coaching' %}6{% else %}8{% endif %}">
                                 <div class="empty-state"><div class="icon"><i data-lucide="graduation-cap" style="width:48px;height:48px;"></i></div><h3>No students found</h3></div>
                             </td>
                         </tr>
