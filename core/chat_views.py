@@ -117,10 +117,16 @@ def build_context(user):
                 f"Total students in institution: {student_count}."
             )
 
-    elif user.role == 'parent':
+    elif user.role == 'librarian':
         ctx_parts.append(
-            f"You are an AI assistant for a parent at '{inst.name}'. "
-            f"You can help with general information about the institution."
+            f"You are an AI assistant for the librarian at '{inst.name}'. "
+            f"You can help with library books, issues, and fines."
+        )
+
+    elif user.role == 'accountant':
+        ctx_parts.append(
+            f"You are an AI assistant for the accountant at '{inst.name}'. "
+            f"You can help with fee management and payment tracking."
         )
 
     return " ".join(ctx_parts) if ctx_parts else "You are an AI assistant for Edosaic student management system."

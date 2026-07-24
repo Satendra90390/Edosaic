@@ -2,14 +2,22 @@
 {% block title %}My Profile - Edosaic{% endblock %}
 {% block body %}
 <div class="layout">
-    {% if user.role == 'admin' %}
+    {% if user.role == 'chairman' %}
         {% include 'components/admin_sidebar.html' %}
+    {% elif user.role == 'director' %}
+        {% include 'components/director_sidebar.html' %}
+    {% elif user.role == 'hod' %}
+        {% include 'components/hod_sidebar.html' %}
     {% elif user.role == 'faculty' %}
         {% include 'components/faculty_sidebar.html' %}
     {% elif user.role == 'student' %}
         {% include 'components/student_sidebar.html' %}
+    {% elif user.role == 'librarian' %}
+        {% include 'components/librarian_sidebar.html' %}
+    {% elif user.role == 'accountant' %}
+        {% include 'components/accountant_sidebar.html' %}
     {% else %}
-        {% include 'components/parent_sidebar.html' %}
+        {% include 'components/admin_sidebar.html' %}
     {% endif %}
 
     <main class="main-content">
