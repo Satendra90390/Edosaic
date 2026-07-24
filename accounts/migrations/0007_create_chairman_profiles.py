@@ -6,11 +6,12 @@ def forwards(apps, schema_editor):
     Chairman = apps.get_model('core', 'Chairman')
     for user in User.objects.filter(role='chairman'):
         if not Chairman.objects.filter(user=user).exists() and user.institution:
+            full_name = (user.first_name + ' ' + user.last_name).strip() or user.username
             Chairman.objects.get_or_create(
                 institution=user.institution,
                 defaults={
                     'user': user,
-                    'name': user.get_full_name() or user.username,
+                    'name': full_name,
                     'phone': getattr(user, 'phone', ''),
                     'email': user.email or '',
                 },
