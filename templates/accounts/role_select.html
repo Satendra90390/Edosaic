@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Verify Institution — Edosaic{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}?v=3">{% endblock %}
+{% block title %}Complete Setup — Edosaic{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}?v=4">{% endblock %}
 {% block body %}
 <nav class="auth-nav">
     <a href="/" class="auth-nav-brand">
@@ -22,9 +22,53 @@
             </div>
             {% endif %}
 
+            {# ── STEP: CHOOSE ── #}
+            {% if step == 'choose' %}
+            <div class="auth-card-header" style="text-align:center;">
+                <div class="step-icon"><i data-lucide="rocket" style="width:28px;height:28px;"></i></div>
+                <h1>Welcome to Edosaic</h1>
+                <p class="subtitle">How would you like to get started?</p>
+            </div>
+
+            <div class="rs-options">
+                <form method="post" class="rs-option-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="choose_join">
+                    <button type="submit" class="rs-option">
+                        <div class="rs-option-icon" style="background:rgba(99,102,241,0.12);color:#6366f1;">
+                            <i data-lucide="log-in" style="width:28px;height:28px;"></i>
+                        </div>
+                        <div class="rs-option-text">
+                            <h3>Join an Institution</h3>
+                            <p>Enter the invite code from your institution admin to join as a student.</p>
+                        </div>
+                        <i data-lucide="arrow-right" style="width:20px;height:20px;color:var(--text-tertiary);"></i>
+                    </button>
+                </form>
+
+                <form method="post" class="rs-option-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="choose_create">
+                    <button type="submit" class="rs-option">
+                        <div class="rs-option-icon" style="background:rgba(16,185,129,0.12);color:#22c55e;">
+                            <i data-lucide="building-2" style="width:28px;height:28px;"></i>
+                        </div>
+                        <div class="rs-option-text">
+                            <h3>Create Institution</h3>
+                            <p>Register a new institution and become its Chairman with full control.</p>
+                        </div>
+                        <i data-lucide="arrow-right" style="width:20px;height:20px;color:var(--text-tertiary);"></i>
+                    </button>
+                </form>
+            </div>
+
+            <a href="{% url 'accounts:login' %}" style="display:block;text-align:center;margin-top:20px;font-size:13px;color:var(--text-secondary);text-decoration:none;">&#8592; Back to Sign In</a>
+
+            {# ── STEP: JOIN ── #}
+            {% elif step == 'join' %}
             <div class="auth-card-header" style="text-align:center;">
                 <div class="step-icon"><i data-lucide="key-round" style="width:28px;height:28px;"></i></div>
-                <h1>Verify Your Institution</h1>
+                <h1>Join an Institution</h1>
                 <p class="subtitle">Enter the invite code provided by your institution admin to join as a student.</p>
             </div>
 
@@ -41,6 +85,76 @@
                 </div>
                 <button type="submit" class="auth-submit">Verify & Join <i data-lucide="check-circle" style="width:18px;height:18px;"></i></button>
             </form>
+
+            <form method="post" style="margin-top:16px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="choose">
+                <button type="submit" class="rs-back-link">&#8592; Back to options</button>
+            </form>
+
+            {# ── STEP: CREATE ── #}
+            {% elif step == 'create' %}
+            <div class="auth-card-header" style="text-align:center;">
+                <div class="step-icon" style="background:rgba(16,185,129,0.12);color:#22c55e;">
+                    <i data-lucide="building-2" style="width:28px;height:28px;"></i>
+                </div>
+                <h1>Create Institution</h1>
+                <p class="subtitle">Set up your institution and become its Chairman.</p>
+            </div>
+
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create_inst">
+                <div class="form-group">
+                    <label>Institution Name *</label>
+                    <div class="input-wrap">
+                        <input type="text" name="inst_name" value="{{ form_data.inst_name|default:'' }}" placeholder="e.g. Delhi Public School" required autofocus>
+                        <span class="input-icon"><i data-lucide="building-2" style="width:18px;height:18px;"></i></span>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select name="inst_type" class="form-select">
+                            <option value="School" {% if form_data.inst_type == 'School' %}selected{% endif %}>School</option>
+                            <option value="College" {% if not form_data.inst_type or form_data.inst_type == 'College' %}selected{% endif %}>College</option>
+                            <option value="University" {% if form_data.inst_type == 'University' %}selected{% endif %}>University</option>
+                            <option value="Coaching" {% if form_data.inst_type == 'Coaching' %}selected{% endif %}>Coaching</option>
+                            <option value="Other" {% if form_data.inst_type == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone *</label>
+                        <div class="input-wrap">
+                            <input type="tel" name="inst_phone" value="{{ form_data.inst_phone|default:'' }}" placeholder="Institution phone" required>
+                            <span class="input-icon"><i data-lucide="phone" style="width:18px;height:18px;"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <div class="input-wrap">
+                        <input type="email" name="inst_email" value="{{ form_data.inst_email|default:'' }}" placeholder="Institution email (optional)">
+                        <span class="input-icon"><i data-lucide="mail" style="width:18px;height:18px;"></i></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <div class="input-wrap">
+                        <input type="text" name="inst_address" value="{{ form_data.inst_address|default:'' }}" placeholder="Institution address (optional)">
+                        <span class="input-icon"><i data-lucide="map-pin" style="width:18px;height:18px;"></i></span>
+                    </div>
+                </div>
+                <button type="submit" class="auth-submit" style="background:#22c55e;">Create & Become Chairman <i data-lucide="crown" style="width:18px;height:18px;"></i></button>
+            </form>
+
+            <form method="post" style="margin-top:16px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="choose">
+                <button type="submit" class="rs-back-link">&#8592; Back to options</button>
+            </form>
+            {% endif %}
+
         </div>
     </div>
 </div>
@@ -57,6 +171,50 @@
     box-shadow: 0 4px 20px var(--brand-glow);
 }
 .field-hint { display: block; font-size: 11px; color: var(--text-tertiary); margin-top: 6px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-select {
+    width: 100%; padding: 12px 14px;
+    background: var(--bg-surface); border: 1.5px solid var(--border-default);
+    border-radius: var(--r-sm); color: var(--text-primary);
+    font-size: 14px; font-family: var(--font);
+    transition: border-color var(--duration) var(--ease);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+.form-select:focus { outline: none; border-color: var(--accent); }
+.rs-options { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+.rs-option-form { display: block; }
+.rs-option {
+    display: flex; align-items: center; gap: 16px;
+    width: 100%; padding: 20px;
+    background: var(--bg-surface); border: 1.5px solid var(--border-default);
+    border-radius: var(--r-md); cursor: pointer;
+    text-align: left; transition: all 0.2s ease;
+}
+.rs-option:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px var(--brand-glow);
+    transform: translateY(-2px);
+}
+.rs-option-icon {
+    width: 52px; height: 52px; flex-shrink: 0;
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+}
+.rs-option-text { flex: 1; }
+.rs-option-text h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.rs-option-text p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+.rs-back-link {
+    display: block; text-align: center; width: 100%;
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; color: var(--text-secondary);
+    font-family: var(--font); transition: color 0.2s;
+}
+.rs-back-link:hover { color: var(--accent); }
+@media (max-width: 480px) {
+    .form-row { grid-template-columns: 1fr; }
+}
 </style>
 
 <script>

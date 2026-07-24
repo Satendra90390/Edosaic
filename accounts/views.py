@@ -72,25 +72,42 @@ def logout_view(request):
 @login_required
 def role_select(request):
     user = request.user
-    if not request.session.pop('oauth_new', False):
+    if not user.institution and not request.session.get('role_select_active'):
+        if not request.session.pop('oauth_new', False):
+            return redirect('core:dashboard')
+        request.session['role_select_active'] = True
+
+    if not request.session.get('role_select_active'):
         return redirect('core:dashboard')
 
-    step = request.session.get('role_select_step', '1')
-    inst_id = request.session.get('role_select_inst_id')
+    step = request.session.get('role_select_step', 'choose')
 
     if request.method == 'POST':
         action = request.POST.get('action', '')
+
+        if action == 'back':
+            request.session.pop('role_select_step', None)
+            request.session.pop('role_select_active', None)
+            return redirect('accounts:login')
+
+        if action == 'choose_join':
+            request.session['role_select_step'] = 'join'
+            return render(request, 'accounts/role_select.html', {'step': 'join'})
+
+        if action == 'choose_create':
+            request.session['role_select_step'] = 'create'
+            return render(request, 'accounts/role_select.html', {'step': 'create'})
 
         if action == 'verify_code':
             invite_code = request.POST.get('invite_code', '').strip().upper()
             if not invite_code:
                 messages.error(request, 'Please enter the invite code from your admin.')
-                return render(request, 'accounts/role_select.html', {'step': '1'})
+                return render(request, 'accounts/role_select.html', {'step': 'join'})
             try:
                 institution = Institution.objects.get(invite_code=invite_code, is_active=True)
             except Institution.DoesNotExist:
                 messages.error(request, 'Invalid invite code. Please check with your admin.')
-                return render(request, 'accounts/role_select.html', {'step': '1'})
+                return render(request, 'accounts/role_select.html', {'step': 'join'})
             user.role = 'student'
             user.institution = institution
             user.save()
@@ -99,16 +116,54 @@ def role_select(request):
                 defaults={'name': user.get_full_name() or user.username, 'age': 18, 'sex': 'Other', 'phone': user.phone or ''},
             )
             request.session.pop('role_select_step', None)
-            request.session.pop('role_select_inst_id', None)
+            request.session.pop('role_select_active', None)
             messages.success(request, f'Welcome! You are registered as a Student at {institution.name}.')
             return redirect('core:dashboard')
 
-        if action == 'back':
-            request.session.pop('role_select_step', None)
-            request.session.pop('role_select_inst_id', None)
-            return redirect('accounts:login')
+        if action == 'create_inst':
+            inst_name = request.POST.get('inst_name', '').strip()
+            inst_type = request.POST.get('inst_type', 'College')
+            inst_phone = request.POST.get('inst_phone', '').strip()
+            inst_email = request.POST.get('inst_email', '').strip()
+            inst_address = request.POST.get('inst_address', '').strip()
 
-    return render(request, 'accounts/role_select.html', {'step': '1'})
+            errors = []
+            if not inst_name:
+                errors.append('Institution name is required.')
+            if not inst_phone:
+                errors.append('Phone is required.')
+            if errors:
+                for e in errors:
+                    messages.error(request, e)
+                return render(request, 'accounts/role_select.html', {'step': 'create', 'form_data': request.POST})
+
+            import re as re_mod
+            slug = inst_name.lower().replace(' ', '-').strip('-')
+            slug = re_mod.sub(r'[^\w\-]', '', slug)
+            if Institution.objects.filter(slug=slug).exists():
+                messages.error(request, 'An institution with this name already exists.')
+                return render(request, 'accounts/role_select.html', {'step': 'create', 'form_data': request.POST})
+
+            inst = Institution.objects.create(
+                name=inst_name, slug=slug, inst_type=inst_type,
+                phone=inst_phone, email=inst_email, address=inst_address,
+            )
+            user.role = 'chairman'
+            user.institution = inst
+            user.first_name = user.get_full_name() or inst_name
+            user.phone = inst_phone
+            user.save()
+            Chairman.objects.create(
+                institution=inst, user=user,
+                name=user.get_full_name() or inst_name,
+                phone=inst_phone, email=inst_email,
+            )
+            request.session.pop('role_select_step', None)
+            request.session.pop('role_select_active', None)
+            messages.success(request, f'Institution "{inst_name}" created! Welcome, Chairman.')
+            return redirect('core:dashboard')
+
+    return render(request, 'accounts/role_select.html', {'step': step})
 
 
 @ratelimit(key='ip', rate='3/m', method='POST', block=True)
