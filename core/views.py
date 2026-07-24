@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Sum, Q
 from datetime import date, timedelta
+from decimal import Decimal
 from .models import (
     Institution, Chairman, Director, HOD, Student, Faculty, Course, Branch, Subject, FacultyTeaching,
     StudentCourse, Result, Attendance, Fee, AuditLog,
@@ -76,7 +77,10 @@ def admin_students(request):
         try:
             s = Student.objects.get(pk=sid, institution=inst)
             name = s.name
+            u = s.user
             s.delete()
+            if u:
+                u.delete()
             log_audit(request.user, 'delete_student', f"Deleted student {name}", 'student_details')
             messages.success(request, f'Student "{name}" deleted.')
         except Student.DoesNotExist:
@@ -444,7 +448,7 @@ def hod_dashboard(request):
     courses = hod_obj.courses.all() if hod_obj else Course.objects.none()
     department = hod_obj.department if hod_obj else ''
     faculty_list = Faculty.objects.filter(institution=inst, department=department) if department else []
-    student_count = Student.objects.filter(institution=inst, course__in=courses, department__iexact=department).count() if hod_obj else 0
+    student_count = Student.objects.filter(institution=inst, course__in=courses).count() if hod_obj else 0
     return render(request, 'hod/dashboard.html', {
         'hod_obj': hod_obj, 'courses': courses,
         'faculty_list': faculty_list, 'student_count': student_count,
@@ -466,8 +470,11 @@ def chairman_directors(request):
         did = request.POST.get('delete_id')
         try:
             d = Director.objects.get(pk=did, institution=inst)
+            u = d.user
             log_audit(request.user, 'delete_director', f"Deleted director {d.name}", 'director_details')
             d.delete()
+            if u:
+                u.delete()
             messages.success(request, f'Director "{d.name}" deleted.')
         except Director.DoesNotExist:
             messages.error(request, 'Director not found.')
@@ -680,8 +687,11 @@ def hod_faculty(request):
         fid = request.POST.get('delete_id')
         try:
             f = Faculty.objects.get(pk=fid, institution=inst, department=hod_obj.department)
+            u = f.user
             log_audit(request.user, 'delete_faculty', f"Deleted faculty {f.name}", 'faculty_details')
             f.delete()
+            if u:
+                u.delete()
             messages.success(request, f'Faculty "{f.name}" deleted.')
         except Faculty.DoesNotExist:
             messages.error(request, 'Faculty not found.')
@@ -825,7 +835,10 @@ def faculty_students(request):
             else:
                 s = Student.objects.get(pk=sid, institution=inst, course__id__in=my_course_ids)
             log_audit(request.user, 'delete_student', f"Deleted student {s.name}", 'student_details')
+            u = s.user
             s.delete()
+            if u:
+                u.delete()
             messages.success(request, f'Student "{s.name}" deleted.')
         except Student.DoesNotExist:
             messages.error(request, 'Student not found.')
@@ -1397,7 +1410,7 @@ def librarian_fines(request):
                     institution=inst, issue=issue, student=issue.student,
                     amount=float(amount), reason=reason,
                 )
-                issue.fine_amount += float(amount)
+                issue.fine_amount = (issue.fine_amount or 0) + Decimal(str(amount))
                 issue.save()
                 log_audit(request.user, 'add_fine', f"Added fine ₹{amount} for {issue.student.name}", 'book_fines')
                 messages.success(request, f'Fine of ₹{amount} added for {issue.student.name}.')
