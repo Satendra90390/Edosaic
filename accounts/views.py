@@ -15,7 +15,13 @@ def landing_page(request):
         return redirect('core:dashboard')
     if not request.session.get('turnstile_verified'):
         return redirect('accounts:verify')
-    return render(request, 'accounts/landing.html')
+    ctx = {
+        'total_students': Student.objects.count(),
+        'total_faculty': Faculty.objects.count(),
+        'total_institutions': Institution.objects.count(),
+        'total_hods': HOD.objects.count(),
+    }
+    return render(request, 'accounts/landing.html', ctx)
 
 
 @ratelimit(key='ip', rate='10/m', method='POST', block=True)
